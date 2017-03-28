@@ -1,6 +1,7 @@
 package com.fsck.k9.activity;
 
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.IntentSender.SendIntentException;
 import android.content.pm.ActivityInfo;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -27,9 +29,15 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import timber.log.Timber;
+
+import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
+import android.text.style.UnderlineSpan;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -39,6 +47,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -200,6 +209,9 @@ public class MessageCompose extends K9Activity implements OnClickListener,
     private EolConvertingEditText signatureView;
     private EolConvertingEditText messageContentView;
     private LinearLayout attachmentsView;
+    private Button boldButton;
+    private Button italicButton;
+    private Button underlineButton;
 
     private String referencedMessageIds;
     private String repliedToMessageId;
@@ -243,7 +255,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
 
         final Intent intent = getIntent();
 
-        String messageReferenceString = intent.getStringExtra(EXTRA_MESSAGE_REFERENCE);
+        final String messageReferenceString = intent.getStringExtra(EXTRA_MESSAGE_REFERENCE);
         relatedMessageReference = MessageReference.parse(messageReferenceString);
 
         final String accountUuid = (relatedMessageReference != null) ?
@@ -293,6 +305,40 @@ public class MessageCompose extends K9Activity implements OnClickListener,
         messageContentView.getInputExtras(true).putBoolean("allowEmoji", true);
 
         attachmentsView = (LinearLayout) findViewById(R.id.attachments);
+
+        boldButton = (Button) findViewById(R.id.bold_button);
+        italicButton = (Button) findViewById(R.id.italic_button);
+        underlineButton = (Button) findViewById(R.id.underline_button);
+
+        OnClickListener richTextButtonClickListener = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int start = messageContentView.getSelectionStart();
+                int end = messageContentView.getSelectionEnd();
+
+                if (start == -1) {
+                    return;
+                }
+                switch (v.getId()) {
+                    case R.id.bold_button:
+                        messageContentView.getText().setSpan(new StyleSpan(Typeface.BOLD),
+                                start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                        break;
+                    case R.id.italic_button:
+                        messageContentView.getText().setSpan(new StyleSpan(Typeface.ITALIC),
+                                start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                        break;
+                    case R.id.underline_button:
+                        messageContentView.getText().setSpan(new UnderlineSpan(),
+                                start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                        break;
+                }
+            }
+        };
+
+        boldButton.setOnClickListener(richTextButtonClickListener);
+        italicButton.setOnClickListener(richTextButtonClickListener);
+        underlineButton.setOnClickListener(richTextButtonClickListener);
 
         TextWatcher draftNeedsChangingTextWatcher = new SimpleTextWatcher() {
             @Override
@@ -655,7 +701,8 @@ public class MessageCompose extends K9Activity implements OnClickListener,
                 .setRequestReadReceipt(requestReadReceipt)
                 .setIdentity(identity)
                 .setMessageFormat(currentMessageFormat)
-                .setText(messageContentView.getCharacters())
+                .setRichText(messageContentView.getRichChars())
+                // .setText(messageContentView.getCharacters())
                 .setAttachments(attachmentPresenter.createAttachmentList())
                 .setSignature(signatureView.getCharacters())
                 .setSignatureBeforeQuotedText(account.isSignatureBeforeQuotedText())

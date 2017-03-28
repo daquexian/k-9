@@ -10,6 +10,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+
 import timber.log.Timber;
 
 import com.fsck.k9.Account.QuoteStyle;
@@ -56,6 +59,7 @@ public abstract class MessageBuilder {
     private Identity identity;
     private SimpleMessageFormat messageFormat;
     private String text;
+    private SpannableStringBuilder richText;
     private List<Attachment> attachments;
     private String signature;
     private QuoteStyle quoteStyle;
@@ -293,7 +297,7 @@ public abstract class MessageBuilder {
      *         original message.
      */
     private TextBody buildText(boolean isDraft, SimpleMessageFormat simpleMessageFormat) {
-        String messageText = text;
+        SpannableStringBuilder messageText = richText;
 
         TextBodyBuilder textBodyBuilder = new TextBodyBuilder(messageText);
 
@@ -400,6 +404,11 @@ public abstract class MessageBuilder {
 
     public MessageBuilder setText(String text) {
         this.text = text;
+        return this;
+    }
+
+    public MessageBuilder setRichText(SpannableStringBuilder richText) {
+        this.richText = richText;
         return this;
     }
 

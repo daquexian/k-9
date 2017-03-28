@@ -1,6 +1,9 @@
 package com.fsck.k9.message;
 
 
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
 import timber.log.Timber;
 
@@ -19,12 +22,17 @@ class TextBodyBuilder {
     private boolean mAppendSignature = true;
 
     private String mMessageContent;
+    private SpannableStringBuilder builder;
     private String mSignature;
     private String mQuotedText;
     private InsertableHtmlContent mQuotedTextHtml;
 
     public TextBodyBuilder(String messageContent) {
         mMessageContent = messageContent;
+    }
+
+    public TextBodyBuilder(SpannableStringBuilder builder) {
+        this.builder = builder;
     }
 
     /**
@@ -41,7 +49,8 @@ class TextBodyBuilder {
         int composedMessageOffset;
 
         // Get the user-supplied text
-        String text = mMessageContent;
+        SpannableStringBuilder builder = this.builder;
+        String text;
 
         // Do we have to modify an existing message to include our reply?
         if (mIncludeQuotedText) {
@@ -54,12 +63,12 @@ class TextBodyBuilder {
             if (mAppendSignature) {
                 // Append signature to the reply
                 if (mReplyAfterQuote || mSignatureBeforeQuotedText) {
-                    text += getSignature();
+                    builder.append(getSignature());
                 }
             }
 
             // Convert the text to HTML
-            text = textToHtmlFragment(text);
+            text = textToHtmlFragment(builder);
 
             /*
              * Set the insertion location based upon our reply after quote
@@ -100,11 +109,11 @@ class TextBodyBuilder {
         } else {
             // There is no text to quote so simply append the signature if available
             if (mAppendSignature) {
-                text += getSignature();
+                builder.append(getSignature());
             }
 
             // Convert the text to HTML
-            text = textToHtmlFragment(text);
+            text = textToHtmlFragment(builder);
 
             //TODO: Wrap this in proper HTML tags
 
@@ -133,7 +142,7 @@ class TextBodyBuilder {
         int composedMessageOffset;
 
         // Get the user-supplied text
-        String text = mMessageContent;
+        String text = builder.toString();//mMessageContent;
 
         // Capture composed message length before we start attaching quoted parts and signatures.
         composedMessageLength = text.length();
@@ -210,6 +219,10 @@ class TextBodyBuilder {
     /**
      * protected for unit-test purposes
      */
+    protected String textToHtmlFragment(SpannableStringBuilder text) {
+        return HtmlConverter.textToHtmlFragment(text);
+    }
+
     protected String textToHtmlFragment(String text) {
         return HtmlConverter.textToHtmlFragment(text);
     }

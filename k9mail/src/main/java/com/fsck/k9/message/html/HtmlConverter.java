@@ -10,14 +10,22 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.os.Build;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
+import android.support.v4.text.TextUtilsCompat;
 import android.text.Annotation;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Html.TagHandler;
 import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.TextUtils.StringSplitter;
 
+import com.fsck.k9.BuildConfig;
 import com.fsck.k9.K9;
 import org.xml.sax.XMLReader;
 
@@ -1292,6 +1300,15 @@ public class HtmlConverter {
                 "font-family: " + font + "; margin-top: 0px}</style>";
     }
 
+    @SuppressWarnings("deprecation")
+    public static String textToHtmlFragment(SpannableStringBuilder builder) {
+        if (VERSION.SDK_INT >= VERSION_CODES.N) {
+            return Html.toHtml(builder, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL);
+        } else {
+            return Html.toHtml(builder);
+        }
+    }
+
     /**
      * Convert a plain text string into an HTML fragment.
      * @param text Plain text.
@@ -1309,7 +1326,7 @@ public class HtmlConverter {
         //
         // For some reason, TextUtils.htmlEncode escapes ' into &apos;, which is technically part of the XHTML 1.0
         // standard, but Gmail doesn't recognize it as an HTML entity. We unescape that here.
-        return linkified.toString().replaceAll("\r?\n", "<br>\r\n").replace("&apos;", "&#39;");
+        return linkified.toString().replaceAll("\r?\n", "\r\n").replace("&apos;", "&#39;");
     }
 
     /**

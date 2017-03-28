@@ -1,6 +1,12 @@
 package com.fsck.k9.ui;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import android.content.Context;
+import android.text.Editable;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.util.AttributeSet;
 import android.widget.EditText;
 
@@ -22,6 +28,18 @@ public class EolConvertingEditText extends EditText {
      */
     public String getCharacters() {
         return getText().toString().replace("\n", "\r\n");
+    }
+
+    public SpannableStringBuilder getRichChars() {
+        Editable editable = getText();
+        Pattern newlinePattern = Pattern.compile("\\n");
+        Matcher newlineMatcher = newlinePattern.matcher(editable);
+
+        while (newlineMatcher.find()) {
+            editable = editable.replace(newlineMatcher.start(), newlineMatcher.end(), "\r\n");
+        }
+
+        return new SpannableStringBuilder(editable);
     }
 
     /**

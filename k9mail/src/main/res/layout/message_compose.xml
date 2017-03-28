@@ -156,4 +156,30 @@
 
     </ScrollView>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="?android:buttonBarStyle"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/bold_button"
+            style="?android:buttonBarButtonStyle"
+            android:text="B"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/italic_button"
+            style="?android:buttonBarButtonStyle"
+            android:text="I"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/underline_button"
+            style="?android:buttonBarButtonStyle"
+            android:text="U"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
 </LinearLayout>
