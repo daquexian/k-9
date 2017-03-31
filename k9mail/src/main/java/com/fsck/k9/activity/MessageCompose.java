@@ -29,11 +29,13 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.text.Editable;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import timber.log.Timber;
 
+import android.text.style.BulletSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
@@ -212,6 +214,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
     private Button boldButton;
     private Button italicButton;
     private Button underlineButton;
+    private Button unorderedListButton;
 
     private String referencedMessageIds;
     private String repliedToMessageId;
@@ -309,29 +312,73 @@ public class MessageCompose extends K9Activity implements OnClickListener,
         boldButton = (Button) findViewById(R.id.bold_button);
         italicButton = (Button) findViewById(R.id.italic_button);
         underlineButton = (Button) findViewById(R.id.underline_button);
+        unorderedListButton = (Button) findViewById(R.id.unordered_list_button);
 
         OnClickListener richTextButtonClickListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                int start = messageContentView.getSelectionStart();
-                int end = messageContentView.getSelectionEnd();
+                int selectionStart = messageContentView.getSelectionStart();
+                int selectionEnd = messageContentView.getSelectionEnd();
 
-                if (start == -1) {
+                if (selectionStart == -1) {
                     return;
                 }
+
+                String spanType = "";
+                SpanFactory spanFactory = new SpanFactory();
+
+                boolean updateSpan = false;
+
                 switch (v.getId()) {
                     case R.id.bold_button:
-                        messageContentView.getText().setSpan(new StyleSpan(Typeface.BOLD),
-                                start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                        spanType = "bold";
                         break;
                     case R.id.italic_button:
-                        messageContentView.getText().setSpan(new StyleSpan(Typeface.ITALIC),
-                                start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                        spanType = "italic";
                         break;
                     case R.id.underline_button:
-                        messageContentView.getText().setSpan(new UnderlineSpan(),
-                                start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                        spanType = "underline";
                         break;
+                    case R.id.unordered_list_button:
+                        spanType = "unorderedlist";
+                        break;
+                }
+
+
+                final Editable text = messageContentView.getText();
+                final Object[] spans = text.getSpans(0, text.length(), spanFactory.newSpan(spanType).getClass());
+
+                for (Object span : spans) {
+                    int spanStart = text.getSpanStart(span);
+                    int spanEnd = text.getSpanEnd(span);
+
+                    if (spanStart <= selectionStart && spanEnd >= selectionEnd) {
+                        text.removeSpan(span);
+
+                        text.setSpan(spanFactory.newSpan(spanType), spanStart, selectionStart, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                        text.setSpan(spanFactory.newSpan(spanType), selectionEnd, spanEnd, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+                        updateSpan = true;
+                        break;
+                    } else if (spanStart <= selectionStart && selectionStart <= spanEnd) {
+                        text.removeSpan(span);
+
+                        text.setSpan(spanFactory.newSpan(spanType), spanStart, selectionEnd, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+                        updateSpan = true;
+                        break;
+                    } else if (spanEnd >= selectionEnd && selectionEnd >= spanStart) {
+                        text.removeSpan(span);
+
+                        text.setSpan(spanFactory.newSpan(spanType), selectionStart, spanEnd, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+                        updateSpan = true;
+                        break;
+                    }
+                }
+
+                if (!updateSpan) {
+                    text.setSpan(spanFactory.newSpan(spanType), selectionStart, selectionEnd, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
                 }
             }
         };
@@ -339,6 +386,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
         boldButton.setOnClickListener(richTextButtonClickListener);
         italicButton.setOnClickListener(richTextButtonClickListener);
         underlineButton.setOnClickListener(richTextButtonClickListener);
+        // unorderedListButton.setOnClickListener(richTextButtonClickListener);
 
         TextWatcher draftNeedsChangingTextWatcher = new SimpleTextWatcher() {
             @Override
@@ -1842,6 +1890,22 @@ public class MessageCompose extends K9Activity implements OnClickListener,
         @StringRes
         public int getTitleResource() {
             return titleResource;
+        }
+    }
+
+    private class SpanFactory {
+        Object newSpan(String span) {
+            switch (span) {
+                case "bold":
+                    return new StyleSpan(Typeface.BOLD);
+                case "italic":
+                    return new StyleSpan(Typeface.ITALIC);
+                case "underline":
+                    return new UnderlineSpan();
+                case "unorderedlist":
+                    return new BulletSpan();
+            }
+            return null;
         }
     }
 }
