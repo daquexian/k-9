@@ -36,12 +36,16 @@ dependencies {
     compile 'com.squareup.moshi:moshi:1.2.0'
     compile "com.jakewharton.timber:timber:${timberVersion}"
 
+    compile 'com.squareup.okhttp3:okhttp:3.6.0'
+    compile 'dnsjava:dnsjava:2.1.7'
+    compile 'org.jsoup:jsoup:1.10.2'
+
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
 
     testCompile "org.robolectric:robolectric:${robolectricVersion}"
     testCompile "junit:junit:${junitVersion}"
     testCompile "org.mockito:mockito-core:${mockitoVersion}"
-    testCompile 'org.jsoup:jsoup:1.10.2'
+    // testCompile 'org.jsoup:jsoup:1.10.2'
 }
 
 android {
@@ -96,6 +100,7 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/README'
         exclude 'LICENSE.txt'
     }
 
