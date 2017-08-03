@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
+import android.support.design.widget.TextInputLayout;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -79,14 +82,14 @@ public class AccountSetupActivity extends AppCompatActivity implements AccountSe
     private TextView messageView;
     private Handler handler;
 
-    private TextView serverLabelView;
+    private TextInputLayout serverLabelView;
     private EditText usernameView;
     private EditText passwordView;
     @SuppressWarnings("FieldCanBeLocal")
     private Button manualSetupButton;
     private ClientCertificateSpinner clientCertificateSpinner;
     private TextView clientCertificateLabelView;
-    private TextView passwordLabelView;
+    private TextInputLayout passwordLabelView;
     private EditText serverView;
     private EditText portView;
     private Spinner securityTypeView;
@@ -107,7 +110,7 @@ public class AccountSetupActivity extends AppCompatActivity implements AccountSe
     private MaterialProgressBar progressBar;
 
     private CheckBox requireLoginView;
-    private ViewGroup requireLoginSettingsView;
+    // private ViewGroup requireLoginSettingsView;
 
     private Spinner checkFrequencyView;
 
@@ -136,6 +139,10 @@ public class AccountSetupActivity extends AppCompatActivity implements AccountSe
     boolean editSettings;
 
     Stage stage;
+    private TextView authenticationLabel;
+    private TextInputLayout usernameLayout;
+    private TextInputLayout passwordLayout;
+    private ViewGroup requireLoginSettingsView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -708,7 +715,8 @@ public class AccountSetupActivity extends AppCompatActivity implements AccountSe
 
     @Override
     public void setServerLabel(String label) {
-        serverLabelView.setText(label);
+        // serverLabelView.setText(label);
+        serverView.setHint(label);
     }
 
     @Override
@@ -739,7 +747,8 @@ public class AccountSetupActivity extends AppCompatActivity implements AccountSe
     @Override
     public void hideViewsWhenWebDav() {
         findViewById(R.id.imap_path_prefix_section).setVisibility(View.GONE);
-        findViewById(R.id.account_auth_type_label).setVisibility(View.GONE);
+        // findViewById(R.id.account_auth_type_label).setVisibility(View.GONE);
+        findViewById(R.id.incoming_account_auth_type_label).setVisibility(View.GONE);
         findViewById(R.id.incoming_account_auth_type).setVisibility(View.GONE);
         findViewById(R.id.compression_section).setVisibility(View.GONE);
         findViewById(R.id.compression_label).setVisibility(View.GONE);
@@ -778,8 +787,8 @@ public class AccountSetupActivity extends AppCompatActivity implements AccountSe
         passwordView = (EditText) incomingView.findViewById(R.id.incoming_account_password);
         clientCertificateSpinner = (ClientCertificateSpinner) incomingView.findViewById(R.id.incoming_account_client_certificate_spinner);
         clientCertificateLabelView = (TextView) incomingView.findViewById(R.id.account_client_certificate_label);
-        passwordLabelView = (TextView) incomingView.findViewById(R.id.account_password_label);
-        serverLabelView = (TextView)  incomingView.findViewById(R.id.account_server_label);
+        passwordLabelView = (TextInputLayout) incomingView.findViewById(R.id.incoming_account_password_layout);
+        serverLabelView = (TextInputLayout)  incomingView.findViewById(R.id.incoming_account_server_layout);
         serverView = (EditText) incomingView.findViewById(R.id.incoming_account_server);
         portView = (EditText) incomingView.findViewById(R.id.incoming_account_port);
         securityTypeView = (Spinner) incomingView.findViewById(R.id.incoming_account_security_type);
@@ -1143,14 +1152,16 @@ public class AccountSetupActivity extends AppCompatActivity implements AccountSe
         final View outgoingView = findViewById(R.id.account_setup_outgoing);
         usernameView = (EditText) outgoingView.findViewById(R.id.outgoing_account_username);
         passwordView = (EditText) outgoingView.findViewById(R.id.outgoing_account_password);
+        passwordLayout = (TextInputLayout) outgoingView.findViewById(R.id.outgoing_account_password_layout);
         clientCertificateSpinner = (ClientCertificateSpinner) outgoingView.findViewById(R.id.outgoing_account_client_certificate_spinner);
         clientCertificateLabelView = (TextView) outgoingView.findViewById(R.id.account_client_certificate_label);
-        passwordLabelView = (TextView) outgoingView.findViewById(R.id.account_password_label);
         serverView = (EditText) outgoingView.findViewById(R.id.outgoing_account_server);
         portView = (EditText) outgoingView.findViewById(R.id.outgoing_account_port);
         requireLoginView = (CheckBox) outgoingView.findViewById(R.id.account_require_login);
         requireLoginSettingsView = (ViewGroup) outgoingView.findViewById(R.id.account_require_login_settings);
+        usernameLayout = (TextInputLayout) outgoingView.findViewById(R.id.outgoing_account_username_layout);
         securityTypeView = (Spinner) outgoingView.findViewById(R.id.outgoing_account_security_type);
+        authenticationLabel = (TextView) outgoingView.findViewById(R.id.account_setup_outgoing_authentication_label);
         authTypeView = (Spinner) outgoingView.findViewById(R.id.outgoing_account_auth_type);
         nextButton = (Button) outgoingView.findViewById(R.id.outgoing_next);
 
@@ -1168,11 +1179,13 @@ public class AccountSetupActivity extends AppCompatActivity implements AccountSe
             accountUuid = savedInstanceState.getString(EXTRA_ACCOUNT);
         } */
 
-        if (requireLoginView.isChecked()) {
+        /* if (requireLoginView.isChecked()) {
             requireLoginSettingsView.setVisibility(View.VISIBLE);
         } else {
             requireLoginSettingsView.setVisibility(View.GONE);
-        }
+        }*/
+
+        onCheckedChanged(requireLoginView, requireLoginView.isChecked());
 
         boolean editSettings = false;
         if (getIntent().getAction() != null) {
@@ -1211,7 +1224,7 @@ public class AccountSetupActivity extends AppCompatActivity implements AccountSe
         usernameView.removeTextChangedListener(validationTextWatcherInOutgoing);
         usernameView.setText(username);
         requireLoginView.setChecked(true);
-        requireLoginSettingsView.setVisibility(View.VISIBLE);
+        // requireLoginSettingsView.setVisibility(View.VISIBLE);
         usernameView.addTextChangedListener(validationTextWatcherInOutgoing);
     }
 
@@ -1262,8 +1275,7 @@ public class AccountSetupActivity extends AppCompatActivity implements AccountSe
     @Override
     public void setViewNotExternalInOutgoing() {
         // show password fields, hide client certificate fields
-        passwordView.setVisibility(View.VISIBLE);
-        passwordLabelView.setVisibility(View.VISIBLE);
+        passwordLayout.setVisibility(View.VISIBLE);
         clientCertificateLabelView.setVisibility(View.GONE);
         clientCertificateSpinner.setVisibility(View.GONE);
 
@@ -1273,8 +1285,7 @@ public class AccountSetupActivity extends AppCompatActivity implements AccountSe
     @Override
     public void setViewExternalInOutgoing() {
         // hide password fields, show client certificate fields
-        passwordView.setVisibility(View.GONE);
-        passwordLabelView.setVisibility(View.GONE);
+        passwordLayout.setVisibility(View.GONE);
         clientCertificateLabelView.setVisibility(View.VISIBLE);
         clientCertificateSpinner.setVisibility(View.VISIBLE);
 

@@ -1,42 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <ScrollView
-        android:layout_width="fill_parent"
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/account_names"
+        android:textSize="@dimen/account_setup_settings_title_size"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginLeft="@dimen/account_setup_settings_margin_start"
+        android:layout_marginStart="@dimen/account_setup_settings_margin_start"
+        android:layout_marginTop="@dimen/account_setup_settings_title_margin_top"
+        android:layout_marginRight="@dimen/account_setup_settings_field_margin_end"
+        android:layout_marginEnd="@dimen/account_setup_settings_field_margin_end"
+        android:textColor="@android:color/black"
+        />
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/account_description_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="@id/title"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginRight="@dimen/account_setup_settings_field_margin_end"
+        android:layout_marginEnd="@dimen/account_setup_settings_field_margin_end"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        >
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/account_description"
+            android:singleLine="true"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:hint="@string/account_setup_names_account_name_label"
+            android:contentDescription="@string/account_setup_names_account_name_label"
+            android:layout_marginBottom="1dp"
+            />
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/account_name_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="@id/account_description_layout"
+        app:layout_constraintRight_toRightOf="@id/account_description_layout"
+        app:layout_constraintTop_toBottomOf="@id/account_description_layout"
+        >
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/account_name"
+            android:singleLine="true"
+            android:inputType="textPersonName"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:hint="@string/account_setup_names_user_name_label"
+            android:contentDescription="@string/account_setup_names_user_name_label"
+            tools:layout_editor_absoluteX="8dp" />
+    </android.support.design.widget.TextInputLayout>
+
+    <!--<View
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="6dip"
-        android:fadingEdge="none"
-        android:scrollbarStyle="outsideInset">
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_gravity="center_horizontal|center_vertical"
-            android:orientation="vertical">
-            <EditText
-                android:id="@+id/account_description"
-                android:singleLine="true"
-                android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
-                android:hint="@string/account_setup_names_account_name_label"
-                android:contentDescription="@string/account_setup_names_account_name_label" />
-            <EditText
-                android:id="@+id/account_name"
-                android:singleLine="true"
-                android:inputType="textPersonName"
-                android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
-                android:hint="@string/account_setup_names_user_name_label"
-                android:contentDescription="@string/account_setup_names_user_name_label" />
-            <View
-                android:layout_height="0dip"
-                android:layout_width="fill_parent"
-                android:layout_weight="1" />
-        </LinearLayout>
-    </ScrollView>
-    <include layout="@layout/wizard_done" />
-</LinearLayout>
+        android:layout_width="0dp"
+        tools:layout_conversion_absoluteX="6dp"
+        tools:layout_conversion_absoluteY="295dp"
+        tools:layout_conversion_absoluteWidth="338dp"
+        tools:layout_conversion_absoluteHeight="0dp"
+        tools:layout_editor_absoluteY="295dp"
+        tools:layout_editor_absoluteX="6dp" />-->
+
+    <include
+        layout="@layout/wizard_done"
+        android:id="@+id/include"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+</android.support.constraint.ConstraintLayout>
