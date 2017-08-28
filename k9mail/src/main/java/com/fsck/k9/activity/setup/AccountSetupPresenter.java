@@ -168,8 +168,8 @@ public class AccountSetupPresenter implements AccountSetupContract.Presenter,
         } else {
             view.setPasswordInBasicsEnabled(false);
             view.setPasswordHintInBasics(context.getString(
-                    R.string.account_setup_basics_password_no_password_needed_hint,
-                    EmailHelper.getProviderNameFromEmailAddress(email))
+                    R.string.account_setup_basics_password_no_password_needed_hint
+                    )
             );
             view.setManualSetupButtonInBasicsVisibility(android.view.View.INVISIBLE);
         }
